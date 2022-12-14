@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.posts.dto.PostForm;
@@ -25,7 +26,6 @@ public class PostService {
 	}
 
 	public Post createPost(PostForm.Request request) {
-		// dto로 변환하는 기능을 담당하는 class가 따로 필요할 수도 있다고 생각
 		Post post = Post.convertPostFormRequestToPostEntity(request);
 		return postRepository.save(post);
 	}
@@ -33,17 +33,16 @@ public class PostService {
 	@Transactional(readOnly = true)
 	public Post loadPostById(Long id) {
 		return postRepository.findById(id)
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Post with id{" + id + "} Not Found"));
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Post with id{" + id + "} Not Found", new IllegalArgumentException()));
 	}
 
 	public Post updatePost(PostForm.Request request) {
 		Post post = loadPostById(request.getId());
-		// validation을 담당하는 class가 따로 필요할 수도 있다고 생각
 		checkValidation(request.getPassword(), post);
 		post.updatePost(request);
 		return postRepository.save(post);
 	}
-
 
 	public void removePost(Long id, String password) {
 		Post post = loadPostById(id);
