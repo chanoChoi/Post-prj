@@ -1,9 +1,12 @@
-package com.example.posts.web;
+package com.example.post.web;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,12 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.posts.dto.PostForm;
-import com.example.posts.entity.Post;
-import com.example.posts.service.PostService;
+import com.example.global.aop.PreAuthorize;
+import com.example.post.dto.PostForm;
+import com.example.post.entity.Post;
+import com.example.post.service.PostService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,44 +30,55 @@ import lombok.RequiredArgsConstructor;
 public class PostController {
 	private static final String ID_MUST_NOT_BE_NULL = "The given id must not be null!";
 	private final PostService postService;
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<PostForm.Response> getPost(@PathVariable final Long id) {
+		Assert.notNull(id, ID_MUST_NOT_BE_NULL);
+		Post post = postService.loadPostById(id);
+		return ResponseEntity.ok(PostForm.Response
+			.convertPostEntityToPostFormResponse(post));
+	}
 
 	@GetMapping
-	public List<PostForm.Response> getPosts() {
+	public ResponseEntity<List<PostForm.Response>> getPosts() {
 		List<Post> posts = postService.fetchAll();
-		return posts.stream()
+		return ResponseEntity.ok(posts.stream()
 			.map(PostForm.Response::convertPostEntityToPostFormResponse)
-			.collect(Collectors.toList());
+			.collect(Collectors.toList()));
 	}
 
-	@ResponseStatus(HttpStatus.CREATED)
+	@PreAuthorize
 	@PostMapping
-	public PostForm.Response createPost(@RequestBody final PostForm.Request request) {
-		Post post = postService.createPost(request);
-		return PostForm.Response
-			.convertPostEntityToPostFormResponse(post);
+	public ResponseEntity<PostForm.Response> createPost(HttpServletRequest request,
+		@RequestBody final PostForm.Request form) {
+		String username = getUsernameFromRequest(request);
+		Post post = postService.createPost(form, username);
+		return ResponseEntity
+			.status(HttpStatus.CREATED)
+			.body(PostForm.Response.convertPostEntityToPostFormResponse(post));
 	}
 
+	@PreAuthorize
 	@PutMapping(value = "/{id}")
-	public PostForm.Response updatePost(@RequestBody final PostForm.Request request) {
-		Post post = postService.updatePost(request);
-		return PostForm.Response
-			.convertPostEntityToPostFormResponse(post);
+	public ResponseEntity<PostForm.Response> updatePost(HttpServletRequest request,
+		@RequestBody final PostForm.Request form,
+		@PathVariable final Long id) {
+		String username = getUsernameFromRequest(request);
+		Post post = postService.updatePost(form, id, username);
+		return ResponseEntity.ok(PostForm.Response
+			.convertPostEntityToPostFormResponse(post));
 	}
 
-	@GetMapping(value = "/{id}")
-	public PostForm.Response getPost(@PathVariable final Long id) {
-		Assert.notNull(id, ID_MUST_NOT_BE_NULL);
-
-		return PostForm.Response
-			.convertPostEntityToPostFormResponse(postService.loadPostById(id));
-	}
-
+	@PreAuthorize
 	@DeleteMapping(value = "/{id}")
-	public String removePost(@PathVariable final Long id, @RequestBody final String password) {
+	public ResponseEntity<String> removePost(HttpServletRequest request,
+		@PathVariable final Long id) {
 		Assert.notNull(id, ID_MUST_NOT_BE_NULL);
-
-		postService.removePost(id, password);
-		return "삭제 완료";
+		String username = getUsernameFromRequest(request);
+		postService.removePost(id, username);
+		return ResponseEntity.ok("삭제 완료");
 	}
 
+	private String getUsernameFromRequest(HttpServletRequest request) {
+		return request.getAttribute("username").toString();
+	}
 }

@@ -1,21 +1,18 @@
-package com.example.posts.entity;
+package com.example.post.entity;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import com.example.posts.dto.PostForm;
+import com.example.global.BaseEntity;
+import com.example.post.dto.PostForm;
+import com.example.user.entity.User;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,42 +24,39 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@AttributeOverride(name = "id", column = @Column(name = "post_id"))
 @Table(name = "Posts")
-@EntityListeners(AuditingEntityListener.class)
 @Entity
-public class Post {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+public class Post extends BaseEntity {
 	@Column(nullable = false, length = 45)
 	private String title;
-	@Column(nullable = false, length = 45)
-	private String name;
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
-	@Column(nullable = false, length = 45)
-	private String password;
-	@CreatedDate
-	private LocalDateTime createdAt;
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
+	@ManyToOne(cascade = CascadeType.REMOVE)
+	@JoinColumn(name = "user_id", referencedColumnName = "user_id")
+	private User user;
 
 	public static Post convertPostFormRequestToPostEntity(PostForm.Request request) {
 		return Post.builder()
 			.title(request.getTitle())
 			.content(request.getContent())
-			.name(request.getName())
-			.password(request.getPassword())
 			.build();
 	}
 
 	public void updatePost(PostForm.Request request) {
-		this.name = request.getName();
 		this.content = request.getContent();
 		this.title = request.getTitle();
 	}
 
-	public boolean match(String password) {
-		return Objects.equals(this.password, password);
+	public String getName() {
+		return this.user.getUsername();
+	}
+
+	public void addUser(User user) {
+		this.user = user;
+	}
+
+	public boolean checkWriter(String username) {
+		return !Objects.equals(this.getName(), username);
 	}
 }

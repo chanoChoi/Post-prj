@@ -1,8 +1,8 @@
-package com.example.posts.dto;
+package com.example.post.dto;
 
 import java.time.LocalDateTime;
 
-import com.example.posts.entity.Post;
+import com.example.post.entity.Post;
 import com.sun.istack.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -16,12 +16,6 @@ public class PostForm {
 	@AllArgsConstructor
 	@Builder
 	public static class Request {
-		@NotNull
-		private Long id;
-		@NotNull
-		private String name;
-		@NotNull
-		private String password;
 		@NotNull
 		private String title;
 		@NotNull

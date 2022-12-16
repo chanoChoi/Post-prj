@@ -1,8 +1,13 @@
 server:
   error:
     include-message: always
+  port: 8000
 
 spring:
+  config:
+    activate:
+      on-profile: default
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/sparta_post
@@ -17,3 +22,7 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+
+  jwt:
+    secret: "나중에 숨긴다"
+
