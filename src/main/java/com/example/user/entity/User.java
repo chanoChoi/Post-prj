@@ -41,13 +41,6 @@ public class User extends BaseEntity {
 		return Objects.equals(this.password, password);
 	}
 
-	public static User createUser(String username, String password) {
-		return User.builder()
-			.username(username)
-			.password(password)
-			.build();
-	}
-
 	public void removePost(Post post) {
 		this.posts = this.posts.stream()
 			.filter(p -> p != post)

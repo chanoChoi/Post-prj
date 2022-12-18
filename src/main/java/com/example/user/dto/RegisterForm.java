@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.global.Validable;
+import com.example.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,5 +29,12 @@ public class RegisterForm implements Validable {
 		if (!(8 <= this.password.length() && this.password.length() <= 15)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 8자 이상 15자 이하, 영문대소문자와 숫자로만 구성되어야 합니다");
 		}
+	}
+
+	public User toEntity() {
+		return User.builder()
+			.username(this.username)
+			.password(this.password)
+			.build();
 	}
 }

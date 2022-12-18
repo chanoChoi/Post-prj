@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.user.dto.LoginForm;
+import com.example.user.dto.RegisterForm;
 import com.example.user.entity.User;
 import com.example.user.repository.UserRepository;
 import com.example.util.JWTGenerator;
@@ -29,23 +31,26 @@ class UserServiceTest {
 	@Test
 	void success_register() {
 	//  given
-		User user = User.builder()
+		RegisterForm request = RegisterForm.builder()
 			.username("username")
 			.password("password")
-			.posts(new ArrayList<>())
 			.build();
 		given(userRepository.existsByUsername(anyString()))
 			.willReturn(false);
 	//  when
 		ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-		userService.resister("username", "password");
-	//  then
+		userService.resister(request);
+		//  then
 		verify(userRepository).save(captor.capture());
 	}
 
 	@Test
 	void success_login() {
 	//  given
+		LoginForm request = LoginForm.builder()
+			.username("username")
+			.password("password")
+			.build();
 		String token = "token";
 		User user = User.builder()
 			.username("username")
@@ -57,7 +62,7 @@ class UserServiceTest {
 		given(jwtGenerator.generateToken(anyString()))
 			.willReturn(token);
 	//  when
-		String returnedToken = userService.login(user.getUsername(), user.getPassword());
+		String returnedToken = userService.login(request);
 		//  then
 		assertThat(token).isEqualTo(returnedToken);
 	}

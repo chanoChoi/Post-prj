@@ -22,14 +22,13 @@ public class UserController {
 
 	@PostMapping(value = "/register")
 	public ResponseEntity<?> register(@RequestBody RegisterForm request) {
-		userService.resister(request.getUsername(), request.getPassword());
-
+		userService.resister(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공");
 	}
 
 	@PostMapping(value = "/login")
 	public ResponseEntity<?> login(@RequestBody LoginForm request) {
-		String token = userService.login(request.getUsername(), request.getPassword());
+		String token = userService.login(request);
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", token);
 

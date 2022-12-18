@@ -20,6 +20,13 @@ public class PostForm {
 		private String title;
 		@NotNull
 		private String content;
+
+		public Post convertToPost() {
+			return Post.builder()
+				.title(this.getTitle())
+				.content(this.getContent())
+				.build();
+		}
 	}
 
 	@Getter

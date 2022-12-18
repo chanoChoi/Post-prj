@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.post.dto.PostForm;
 import com.example.post.entity.Post;
+import com.example.post.repository.JPAPostRepository;
 import com.example.post.repository.PostRepository;
 import com.example.user.entity.User;
 import com.example.user.service.UserService;
@@ -21,13 +22,12 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 	private final PostRepository postRepository;
 	private final UserService userService;
-	// private final JWTGenerator jwtGenerator;
 
 	@Transactional(readOnly = true)
 	public Post loadPostById(Long id) {
-		return postRepository.findById(id)
+		return postRepository.findById(id) // 구현체가 Optional 을 반환하게하면 사용할 수 있을듯?
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-				"Post with id{" + id + "} Not Found", new IllegalArgumentException()));
+				"Post with id{" + id + "} Not Found"));
 	}
 
 	@Transactional(readOnly = true)
@@ -37,28 +37,27 @@ public class PostService {
 
 	public Post createPost(PostForm.Request request, String username) {
 		User user = userService.loadUserByUsername(username);
-		Post post = Post.convertPostFormRequestToPostEntity(request);
+		Post post = request.convertToPost();
 		user.addPost(post);
 		return postRepository.save(post);
 	}
 
 	public Post updatePost(PostForm.Request request, Long id, String username) {
 		Post post = loadPostById(id);
-		if (post.checkWriter(username)){
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한 없음");
-		}
+		validateHasAuthorization(username, post);
 		post.updatePost(request);
 		return postRepository.save(post);
 	}
 
 	public void removePost(Long id, String username) {
 		Post post = loadPostById(id);
-		if (post.checkWriter(username)){
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한 없음");
-		}
+		validateHasAuthorization(username, post);
 		postRepository.deleteById(id);
 	}
 
-
-
+	private void validateHasAuthorization(String username, Post post) {
+		if (post.checkWriter(username)){
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한 없음");
+		}
+	}
 }

@@ -36,16 +36,18 @@ public class Post extends BaseEntity {
 	@JoinColumn(name = "user_id", referencedColumnName = "user_id")
 	private User user;
 
-	public static Post convertPostFormRequestToPostEntity(PostForm.Request request) {
-		return Post.builder()
-			.title(request.getTitle())
-			.content(request.getContent())
-			.build();
-	}
-
 	public void updatePost(PostForm.Request request) {
 		this.content = request.getContent();
 		this.title = request.getTitle();
+	}
+
+	public PostForm.Response convertToResponse() {
+		return PostForm.Response.builder()
+			.name(this.getName())
+			.title(this.getTitle())
+			.content(this.getContent())
+			.createdAt(this.getCreatedAt())
+			.build();
 	}
 
 	public String getName() {

@@ -34,15 +34,14 @@ public class PostController {
 	public ResponseEntity<PostForm.Response> getPost(@PathVariable final Long id) {
 		Assert.notNull(id, ID_MUST_NOT_BE_NULL);
 		Post post = postService.loadPostById(id);
-		return ResponseEntity.ok(PostForm.Response
-			.convertPostEntityToPostFormResponse(post));
+		return ResponseEntity.ok(post.convertToResponse());
 	}
 
 	@GetMapping
 	public ResponseEntity<List<PostForm.Response>> getPosts() {
 		List<Post> posts = postService.fetchAll();
 		return ResponseEntity.ok(posts.stream()
-			.map(PostForm.Response::convertPostEntityToPostFormResponse)
+			.map(Post::convertToResponse)
 			.collect(Collectors.toList()));
 	}
 
@@ -54,7 +53,7 @@ public class PostController {
 		Post post = postService.createPost(form, username);
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
-			.body(PostForm.Response.convertPostEntityToPostFormResponse(post));
+			.body(post.convertToResponse());
 	}
 
 	@PreAuthorize
@@ -64,8 +63,7 @@ public class PostController {
 		@PathVariable final Long id) {
 		String username = getUsernameFromRequest(request);
 		Post post = postService.updatePost(form, id, username);
-		return ResponseEntity.ok(PostForm.Response
-			.convertPostEntityToPostFormResponse(post));
+		return ResponseEntity.ok(post.convertToResponse());
 	}
 
 	@PreAuthorize

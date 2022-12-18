@@ -53,7 +53,7 @@ class UserControllerTest {
 			.password("password")
 			.build();
 
-		given(userService.login(anyString(), anyString()))
+		given(userService.login(any(LoginForm.class)))
 			.willReturn(token);
 	//  when
 		mockMvc.perform(post("/api/v1/users/login")
