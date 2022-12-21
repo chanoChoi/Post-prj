@@ -1,7 +1,9 @@
 package com.example.post.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import com.example.comment.dto.CommentResponse;
 import com.example.post.entity.Post;
 import com.sun.istack.NotNull;
 
@@ -35,21 +37,14 @@ public class PostForm {
 	@Builder
 	public static class Response {
 		@NotNull
-		private String name;
+		private String username;
 		@NotNull
 		private String title;
 		@NotNull
 		private String content;
 		@NotNull
 		private LocalDateTime createdAt;
-
-		public static Response convertPostEntityToPostFormResponse(Post post) {
-			return Response.builder()
-				.name(post.getName())
-				.title(post.getTitle())
-				.content(post.getContent())
-				.createdAt(post.getCreatedAt())
-				.build();
-		}
+		@NotNull
+		private List<CommentResponse> comments;
 	}
 }

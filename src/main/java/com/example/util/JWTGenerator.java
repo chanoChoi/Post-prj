@@ -44,7 +44,7 @@ public class JWTGenerator {
 			Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
 			return true;
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "토큰이 유효하지 않습니다.", e);
 		}
 	}
 

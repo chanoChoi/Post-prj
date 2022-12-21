@@ -22,10 +22,6 @@ public class AspectPrac {
 
 	@Before("preauthorize()")
 	public void validateToken(JoinPoint jp){
-		// MethodSignature signature = (MethodSignature) jp.getSignature();
-		// Method method = signature.getMethod();
-		// PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
-
 		HttpServletRequest request = (HttpServletRequest) jp.getArgs()[0];
 		String token = jwtGenerator.getJWTFromToken(request);
 		jwtGenerator.validateToken(token);

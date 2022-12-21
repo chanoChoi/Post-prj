@@ -1,5 +1,5 @@
 package com.example.global;
 
 public interface Validable {
-	void validate();
+	void validate(String username, String password);
 }

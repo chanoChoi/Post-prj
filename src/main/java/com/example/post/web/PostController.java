@@ -61,6 +61,7 @@ public class PostController {
 	public ResponseEntity<PostForm.Response> updatePost(HttpServletRequest request,
 		@RequestBody final PostForm.Request form,
 		@PathVariable final Long id) {
+		Assert.notNull(id, ID_MUST_NOT_BE_NULL);
 		String username = getUsernameFromRequest(request);
 		Post post = postService.updatePost(form, id, username);
 		return ResponseEntity.ok(post.convertToResponse());

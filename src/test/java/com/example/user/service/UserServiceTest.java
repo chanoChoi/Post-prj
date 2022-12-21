@@ -16,13 +16,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.example.user.dto.LoginForm;
 import com.example.user.dto.RegisterForm;
 import com.example.user.entity.User;
-import com.example.user.repository.UserRepository;
+import com.example.user.repository.JPAUserRepository;
 import com.example.util.JWTGenerator;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 	@Mock
-	private UserRepository userRepository;
+	private JPAUserRepository JPAUserRepository;
 	@Mock
 	private JWTGenerator jwtGenerator;
 	@InjectMocks
@@ -35,13 +35,13 @@ class UserServiceTest {
 			.username("username")
 			.password("password")
 			.build();
-		given(userRepository.existsByUsername(anyString()))
+		given(JPAUserRepository.existsByUsername(anyString()))
 			.willReturn(false);
 	//  when
 		ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 		userService.resister(request);
 		//  then
-		verify(userRepository).save(captor.capture());
+		verify(JPAUserRepository).save(captor.capture());
 	}
 
 	@Test
@@ -57,7 +57,7 @@ class UserServiceTest {
 			.password("password")
 			.posts(new ArrayList<>())
 			.build();
-		given(userRepository.findByUsername(anyString()))
+		given(JPAUserRepository.findByUsername(anyString()))
 			.willReturn(Optional.of(user));
 		given(jwtGenerator.generateToken(anyString()))
 			.willReturn(token);

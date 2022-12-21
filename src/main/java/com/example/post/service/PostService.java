@@ -7,12 +7,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.comment.entity.Comment;
+import com.example.comment.repository.CommentRepository;
 import com.example.post.dto.PostForm;
 import com.example.post.entity.Post;
-import com.example.post.repository.JPAPostRepository;
 import com.example.post.repository.PostRepository;
 import com.example.user.entity.User;
 import com.example.user.service.UserService;
+import com.example.user.type.UserRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class PostService {
 	private final PostRepository postRepository;
+	private final CommentRepository commentRepository;
 	private final UserService userService;
 
 	@Transactional(readOnly = true)
@@ -56,8 +59,12 @@ public class PostService {
 	}
 
 	private void validateHasAuthorization(String username, Post post) {
-		if (post.checkWriter(username)){
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한 없음");
+		User user = userService.loadUserByUsername(username);
+
+		if (user.getRole() != UserRole.ADMIN) {
+			if (!post.checkWriter(user.getUsername())){
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성자만 삭제/수정할 수 있습니다.");
+			}
 		}
 	}
 }
