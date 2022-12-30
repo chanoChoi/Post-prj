@@ -3,17 +3,12 @@ package com.example.user.dto;
 import com.example.user.entity.User;
 import com.example.user.type.UserRole;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@AllArgsConstructor
-@Builder
-public class RegisterForm {
-	private String username;
-	private String password;
-
+@SuperBuilder
+public class RegisterForm extends AbstractUserForm{
 	public User toEntity() {
 		return User.builder()
 			.username(this.username)

@@ -1,11 +1,13 @@
 package com.example.user.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
+@AllArgsConstructor
 @SuperBuilder
-public class LoginForm extends AbstractUserForm {
+public class AbstractUserForm {
+	protected String username;
+	protected String password;
 }
