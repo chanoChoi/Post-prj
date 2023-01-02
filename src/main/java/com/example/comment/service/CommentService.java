@@ -23,6 +23,12 @@ public class CommentService {
 	private final PostService postService;
 	private final UserService userService;
 
+	public Comment findCommentById(Long commentId) {
+		return commentRepository.findById(commentId)
+			.orElseThrow(
+				() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 코멘트를 찾을 수 없습니다."));
+	}
+
 	private Comment findCommentByUserIdAndPostId(Long userId, Long postId) {
 		return commentRepository.findCommentByUserIdAndPostId(userId, postId)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -43,18 +49,22 @@ public class CommentService {
 		comment.addComment();
 		return commentRepository.save(comment);
 	}
-	public Comment updateComment(Long postId, String username, String content) {
-		Post post = postService.loadPostById(postId);
+	public Comment updateComment(Long commentId, String username,  String content) {
+		Comment comment = findCommentById(commentId);
 		User user = userService.loadUserByUsername(username);
-		Comment comment = findCommentByUserIdAndPostId(user.getId(), post.getId());
+		if (comment.validateAuthorize(user)) {
+			throw new RuntimeException("NOT CORRECT ACCESS");
+		};
 		comment.updateContent(content);
 		return comment;
 	}
 
-	public void deleteComment(Long postId, String username) {
-		Post post = postService.loadPostById(postId);
+	public void deleteComment(Long commentId, String username) {
+		Comment comment = findCommentById(commentId);
 		User user = userService.loadUserByUsername(username);
-		Comment comment = findCommentByUserIdAndPostId(user.getId(), post.getId());
+		if (comment.validateAuthorize(user)) {
+			throw new RuntimeException("NOT CORRECT ACCESS");
+		};
 		commentRepository.deleteById(comment.getId());
 	}
 }

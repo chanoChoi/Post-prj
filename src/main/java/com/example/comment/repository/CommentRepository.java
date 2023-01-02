@@ -9,4 +9,5 @@ public interface CommentRepository {
 	Optional<Comment> findCommentByUserIdAndPostId(Long userId, Long postId);
 	int existCommentByUserIdAndPostId(Long userId, Long postId);
 	void deleteById(Long id);
+	Optional<Comment> findById(Long commentId);
 }

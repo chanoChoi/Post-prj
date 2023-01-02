@@ -5,10 +5,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
-import com.example.global.DefaultValidate;
+import com.example.global.Validator;
 import com.example.user.dto.AbstractUserForm;
-import com.example.user.dto.LoginForm;
-import com.example.user.dto.RegisterForm;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,12 +14,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Component
 public class FieldValidationAspect {
-	private final DefaultValidate validate;
+	private final Validator validate;
 
 	@Before("execution(* com.example.user.web.UserController.*(..))")
 	public void validateFiled(JoinPoint joinPoint) {
 		AbstractUserForm arg = (AbstractUserForm)joinPoint.getArgs()[0];
-		validate.validate(arg.getUsername(), arg.getPassword());
-
+		Validator.validate(arg.getUsername(), arg.getPassword());
 	}
 }

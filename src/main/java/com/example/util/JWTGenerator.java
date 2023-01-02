@@ -21,7 +21,7 @@ import lombok.Setter;
 @Component
 public class JWTGenerator {
 	private final String secret;
-	private final int expire = 60 * 60 * 24 * 1000;
+	private static final int expire = 60 * 60 * 24 * 1000;
 
 	public JWTGenerator(@Value("$(spring.jwt.secret)") String secret) {
 		this.secret = secret;
@@ -44,6 +44,7 @@ public class JWTGenerator {
 			Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
 			return true;
 		} catch (Exception e) {
+			System.out.println("HHHH");
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "토큰이 유효하지 않습니다.", e);
 		}
 	}

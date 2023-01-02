@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.global.aop.PreAuthorize;
 import com.example.post.dto.PostForm;
 import com.example.post.entity.Post;
 import com.example.post.service.PostService;
@@ -45,39 +47,29 @@ public class PostController {
 			.collect(Collectors.toList()));
 	}
 
-	@PreAuthorize
 	@PostMapping
-	public ResponseEntity<PostForm.Response> createPost(HttpServletRequest request,
+	public ResponseEntity<PostForm.Response> createPost(@AuthenticationPrincipal UserDetails userDetails,
 		@RequestBody final PostForm.Request form) {
-		String username = getUsernameFromRequest(request);
-		Post post = postService.createPost(form, username);
+		Post post = postService.createPost(form, userDetails.getUsername());
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
 			.body(post.convertToResponse());
 	}
 
-	@PreAuthorize
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<PostForm.Response> updatePost(HttpServletRequest request,
+	public ResponseEntity<PostForm.Response> updatePost(@AuthenticationPrincipal UserDetails userDetails,
 		@RequestBody final PostForm.Request form,
 		@PathVariable final Long id) {
 		Assert.notNull(id, ID_MUST_NOT_BE_NULL);
-		String username = getUsernameFromRequest(request);
-		Post post = postService.updatePost(form, id, username);
+		Post post = postService.updatePost(form, id, userDetails.getUsername());
 		return ResponseEntity.ok(post.convertToResponse());
 	}
 
-	@PreAuthorize
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<String> removePost(HttpServletRequest request,
+	public ResponseEntity<String> removePost(@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable final Long id) {
 		Assert.notNull(id, ID_MUST_NOT_BE_NULL);
-		String username = getUsernameFromRequest(request);
-		postService.removePost(id, username);
+		postService.removePost(id, userDetails.getUsername());
 		return ResponseEntity.ok("삭제 완료");
-	}
-
-	private String getUsernameFromRequest(HttpServletRequest request) {
-		return request.getAttribute("username").toString();
 	}
 }

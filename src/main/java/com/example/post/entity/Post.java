@@ -17,6 +17,7 @@ import javax.persistence.Table;
 
 import com.example.comment.entity.Comment;
 import com.example.global.BaseEntity;
+import com.example.like.entity.Like;
 import com.example.post.dto.PostForm;
 import com.example.user.entity.User;
 
@@ -38,13 +39,20 @@ public class Post extends BaseEntity {
 	private String title;
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
-	@ManyToOne(cascade = CascadeType.PERSIST)
+
+	private int likeCnt;
+	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "user_id")
 	private User user;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
 	private List<Comment> comments = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+	private List<Like> likes = new ArrayList<>();
+
 
 	public void updatePost(PostForm.Request request) {
 		this.content = request.getContent();
@@ -53,9 +61,11 @@ public class Post extends BaseEntity {
 
 	public PostForm.Response convertToResponse() {
 		return PostForm.Response.builder()
+			.id(this.getId())
 			.username(this.getName())
 			.title(this.title)
 			.content(this.content)
+			.likeCnt(likeCnt)
 			.createdAt(this.getCreatedAt())
 			// 애플리케이션에서 댓글을 시간순 정렬 or DB에서 포스트를 가져올때 코멘트를 시간순 정렬하는 쿼리를 사용할 것인가
 			.comments(this.comments.stream().map(Comment::toCommentResponse).collect(Collectors.toList()))
@@ -88,5 +98,9 @@ public class Post extends BaseEntity {
 	public void updateComment(Comment comment) {
 		Comment comment1 = getComment(comment);
 		comment1.updateContent(content);
+	}
+
+	public void pushLike() {
+		this.likeCnt++;
 	}
 }

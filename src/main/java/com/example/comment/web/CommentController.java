@@ -5,6 +5,8 @@ import javax.websocket.server.PathParam;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.comment.entity.Comment;
 import com.example.comment.service.CommentService;
-import com.example.global.aop.PreAuthorize;
 
 import io.jsonwebtoken.lang.Assert;
 import lombok.RequiredArgsConstructor;
@@ -24,36 +25,26 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class CommentController {
 	private final CommentService commentService;
-
-	@PreAuthorize
 	@PostMapping(value = "/{id}")
-	public ResponseEntity<?> writeComment(HttpServletRequest request,
+	public ResponseEntity<?> writeComment(@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable(name = "id") Long postId, @PathParam(value = "content") String content) {
 		Assert.notNull(content, "content must be Not null");
-		String username = getUsernameFromRequest(request);
-		Comment comment = commentService.writeComment(postId, username, content);
+		Comment comment = commentService.writeComment(postId, userDetails.getUsername(), content);
 		return ResponseEntity.status(HttpStatus.CREATED).body(comment.getContent());
 	}
 
-	@PreAuthorize
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<?> updateComment(HttpServletRequest request,
-		@PathVariable(name = "id") Long postId, @PathParam(value = "content") String content) {
+	public ResponseEntity<?> updateComment(@AuthenticationPrincipal UserDetails userDetails,
+		@PathVariable(name = "id") Long commentId, @PathParam(value = "content") String content) {
 		Assert.notNull(content, "content must be Not null");
-		String username = getUsernameFromRequest(request);
-		Comment comment = commentService.updateComment(postId, username, content);
+		Comment comment = commentService.updateComment(commentId, userDetails.getUsername(), content);
 		return ResponseEntity.ok(comment.getContent());
 	}
 
-	@PreAuthorize
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<?> deleteComment(HttpServletRequest request, @PathVariable(name = "id") Long postId) {
-		String username = getUsernameFromRequest(request);
-		commentService.deleteComment(postId, username);
+	public ResponseEntity<?> deleteComment(@AuthenticationPrincipal UserDetails userDetails, @PathVariable(name = "id") Long commentId) {
+		commentService.deleteComment(commentId, userDetails.getUsername());
 		return ResponseEntity.ok("Comment is gone...say good bye");
 	}
 
-	private static String getUsernameFromRequest(HttpServletRequest request) {
-		return request.getAttribute("username").toString();
-	}
 }

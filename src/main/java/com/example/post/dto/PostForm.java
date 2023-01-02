@@ -37,11 +37,15 @@ public class PostForm {
 	@Builder
 	public static class Response {
 		@NotNull
+		private Long id;
+		@NotNull
 		private String username;
 		@NotNull
 		private String title;
 		@NotNull
 		private String content;
+		@NotNull
+		private int likeCnt;
 		@NotNull
 		private LocalDateTime createdAt;
 		@NotNull

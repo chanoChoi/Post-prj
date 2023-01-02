@@ -13,9 +13,13 @@ import lombok.Getter;
 @Builder
 public class CommentResponse {
 	@NotNull
+	private Long id;
+	@NotNull
 	private String content;
 	@NotNull
 	private String username;
+	@NotNull
+	private int likeCnt;
 	@NotNull
 	private LocalDateTime createdAt;
 }

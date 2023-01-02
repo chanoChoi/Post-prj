@@ -4,9 +4,11 @@ import com.example.user.entity.User;
 import com.example.user.type.UserRole;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
+@NoArgsConstructor
 @SuperBuilder
 public class RegisterForm extends AbstractUserForm{
 	public User toEntity() {

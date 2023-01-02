@@ -17,6 +17,7 @@ import javax.persistence.Table;
 
 import com.example.comment.entity.Comment;
 import com.example.global.BaseEntity;
+import com.example.like.entity.Like;
 import com.example.post.entity.Post;
 import com.example.user.type.UserRole;
 
@@ -49,6 +50,10 @@ public class User extends BaseEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private List<Comment> comments = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+	private List<Like> likes = new ArrayList<>();
 
 	public boolean match(String password) {
 		return Objects.equals(this.password, password);

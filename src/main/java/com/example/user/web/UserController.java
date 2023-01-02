@@ -14,7 +14,7 @@ import com.example.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor // private final 로 선언된 객체들을 자동 DI 해줍니다. (주입되는 객체는 IoC 컨테이너에 Bean 으로 등록이 되어 있어야합니다)
 @RequestMapping("/api/v1/users")
 @RestController
 public class UserController {
@@ -30,7 +30,7 @@ public class UserController {
 	public ResponseEntity<?> login(@RequestBody LoginForm request) {
 		String token = userService.login(request);
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", token);
+		headers.setBearerAuth(token);
 
 		return ResponseEntity.ok().headers(headers).body("로그인 완료");
 	}
